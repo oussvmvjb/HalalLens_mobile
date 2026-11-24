@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../core/constants/storage_keys.dart';
 import '../../../core/errors/api_exception.dart';
@@ -24,19 +23,17 @@ abstract interface class AuthRepository {
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return ApiAuthRepository(
     dio: ref.watch(apiClientProvider),
-    storage: ref.watch(secureStorageProvider),
+    storage: ref.watch(tokenStorageProvider),
   );
 });
 
 class ApiAuthRepository implements AuthRepository {
-  const ApiAuthRepository({
-    required Dio dio,
-    required FlutterSecureStorage storage,
-  }) : _dio = dio,
-       _storage = storage;
+  const ApiAuthRepository({required Dio dio, required TokenStorage storage})
+    : _dio = dio,
+      _storage = storage;
 
   final Dio _dio;
-  final FlutterSecureStorage _storage;
+  final TokenStorage _storage;
 
   @override
   Future<AuthUser> signIn({

@@ -10,8 +10,36 @@ final secureStorageProvider = Provider<FlutterSecureStorage>(
   (ref) => const FlutterSecureStorage(),
 );
 
+abstract interface class TokenStorage {
+  Future<String?> read({required String key});
+
+  Future<void> write({required String key, required String value});
+
+  Future<void> delete({required String key});
+}
+
+class SecureTokenStorage implements TokenStorage {
+  const SecureTokenStorage(this._storage);
+
+  final FlutterSecureStorage _storage;
+
+  @override
+  Future<String?> read({required String key}) => _storage.read(key: key);
+
+  @override
+  Future<void> write({required String key, required String value}) =>
+      _storage.write(key: key, value: value);
+
+  @override
+  Future<void> delete({required String key}) => _storage.delete(key: key);
+}
+
+final tokenStorageProvider = Provider<TokenStorage>(
+  (ref) => SecureTokenStorage(ref.watch(secureStorageProvider)),
+);
+
 final apiClientProvider = Provider<Dio>((ref) {
-  final storage = ref.watch(secureStorageProvider);
+  final storage = ref.watch(tokenStorageProvider);
   final dio = Dio(
     BaseOptions(
       baseUrl: AppConfig.apiBaseUrl,
