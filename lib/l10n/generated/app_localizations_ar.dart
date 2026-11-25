@@ -95,6 +95,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get password => 'كلمة المرور';
 
   @override
+  String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get forgotPassword => 'هل نسيت كلمة المرور؟';
+
+  @override
+  String get passwordRecoveryUnavailable => 'استعادة كلمة المرور غير متاحة حالياً. يرجى التواصل مع الدعم.';
+
+  @override
   String get passwordHelper => 'استخدم 12 حرفاً على الأقل.';
 
   @override
@@ -122,10 +131,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enterPassword => 'أدخل كلمة المرور';
 
   @override
+  String get passwordsDoNotMatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
   String get passwordTooShort => 'يجب ألا تقل كلمة المرور عن 12 حرفاً';
 
   @override
-  String get networkError => 'تعذر الاتصال بواجهة API. تحقق من الاتصال وعنوان API. في Flutter Web، تأكد من السماح بأصل الصفحة في إعدادات CORS في FastAPI.';
+  String get networkError => 'تعذر الاتصال بواجهة API. تحقق من اتصال الإنترنت وحاول مرة أخرى.';
 
   @override
   String get requestTimeout => 'استغرق الخادم وقتاً طويلاً للرد. تحقق من الخادم وحاول مجدداً.';

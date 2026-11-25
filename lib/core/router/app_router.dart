@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/navigation/app_shell.dart';
@@ -18,41 +19,55 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/authentication',
-        builder: (context, state) => const AuthenticationPage(),
+        pageBuilder:
+            (context, state) =>
+                _animatedPage(state, const AuthenticationPage()),
       ),
       ShellRoute(
         builder:
             (context, state, child) =>
                 AppShell(location: state.uri.path, child: child),
         routes: [
-          GoRoute(path: '/', builder: (context, state) => const HomePage()),
+          GoRoute(
+            path: '/',
+            pageBuilder:
+                (context, state) => _animatedPage(state, const HomePage()),
+          ),
           GoRoute(
             path: '/scanner',
-            builder: (context, state) => const ScannerPage(),
+            pageBuilder:
+                (context, state) => _animatedPage(state, const ScannerPage()),
           ),
           GoRoute(
             path: '/barcode',
-            builder: (context, state) => const BarcodeScannerPage(),
+            pageBuilder:
+                (context, state) =>
+                    _animatedPage(state, const BarcodeScannerPage()),
           ),
           GoRoute(
             path: '/product',
-            builder: (context, state) => const ProductPage(),
+            pageBuilder:
+                (context, state) => _animatedPage(state, const ProductPage()),
           ),
           GoRoute(
             path: '/analysis',
-            builder: (context, state) => const AnalysisPage(),
+            pageBuilder:
+                (context, state) => _animatedPage(state, const AnalysisPage()),
           ),
           GoRoute(
             path: '/history',
-            builder: (context, state) => const HistoryPage(),
+            pageBuilder:
+                (context, state) => _animatedPage(state, const HistoryPage()),
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const ProfilePage(),
+            pageBuilder:
+                (context, state) => _animatedPage(state, const ProfilePage()),
           ),
           GoRoute(
             path: '/settings',
-            builder: (context, state) => const SettingsPage(),
+            pageBuilder:
+                (context, state) => _animatedPage(state, const SettingsPage()),
           ),
         ],
       ),
@@ -61,3 +76,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+CustomTransitionPage<void> _animatedPage(GoRouterState state, Widget child) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    transitionDuration: const Duration(milliseconds: 240),
+    reverseTransitionDuration: const Duration(milliseconds: 190),
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+      return FadeTransition(
+        opacity: curvedAnimation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.025, 0),
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: child,
+        ),
+      );
+    },
+  );
+}

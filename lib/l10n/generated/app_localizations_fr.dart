@@ -95,6 +95,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get password => 'Mot de passe';
 
   @override
+  String get confirmPassword => 'Confirmer le mot de passe';
+
+  @override
+  String get forgotPassword => 'Mot de passe oublié ?';
+
+  @override
+  String get passwordRecoveryUnavailable => 'La récupération du mot de passe n’est pas encore disponible. Contactez l’assistance.';
+
+  @override
   String get passwordHelper => 'Utilisez au moins 12 caractères.';
 
   @override
@@ -122,10 +131,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get enterPassword => 'Saisissez votre mot de passe';
 
   @override
+  String get passwordsDoNotMatch => 'Les mots de passe ne correspondent pas.';
+
+  @override
   String get passwordTooShort => 'Le mot de passe doit contenir au moins 12 caractères';
 
   @override
-  String get networkError => 'Impossible de joindre l’API. Vérifiez la connexion et l’URL de l’API. Pour Flutter Web, vérifiez que FastAPI autorise l’origine de cette page dans CORS.';
+  String get networkError => 'Impossible de joindre l’API. Vérifiez votre connexion Internet et réessayez.';
 
   @override
   String get requestTimeout => 'Le serveur a mis trop de temps à répondre. Vérifiez le backend et réessayez.';

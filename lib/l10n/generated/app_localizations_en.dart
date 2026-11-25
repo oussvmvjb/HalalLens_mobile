@@ -95,6 +95,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get passwordRecoveryUnavailable => 'Password recovery is not available yet. Please contact support.';
+
+  @override
   String get passwordHelper => 'Use at least 12 characters.';
 
   @override
@@ -122,10 +131,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterPassword => 'Enter your password';
 
   @override
+  String get passwordsDoNotMatch => 'Passwords do not match.';
+
+  @override
   String get passwordTooShort => 'Password must be at least 12 characters';
 
   @override
-  String get networkError => 'Could not reach the API. Check the connection and API URL. For Flutter Web, make sure FastAPI allows this page\'s origin in CORS.';
+  String get networkError => 'Could not reach the API. Check your internet connection and try again.';
 
   @override
   String get requestTimeout => 'The server took too long to respond. Check the backend and try again.';

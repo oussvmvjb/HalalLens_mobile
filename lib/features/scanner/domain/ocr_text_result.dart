@@ -80,12 +80,14 @@ class OcrTextResult {
     required this.success,
     required this.fullText,
     required this.extractedText,
+    this.scanId,
     this.language = const [],
     this.ingredients = const [],
     this.warnings = const [],
   });
 
   final bool success;
+  final String? scanId;
   final String fullText;
   final List<OcrTextRegion> extractedText;
   final List<String> language;
@@ -110,6 +112,7 @@ class OcrTextResult {
 
     return OcrTextResult(
       success: success,
+      scanId: json['scan_id'] is String ? json['scan_id'] as String : null,
       fullText: fullText,
       extractedText:
           rawRegions

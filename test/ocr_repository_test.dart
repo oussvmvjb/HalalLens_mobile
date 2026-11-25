@@ -79,6 +79,11 @@ void main() {
       expect(request?.connectTimeout, ocrConnectTimeout);
       expect(request?.sendTimeout, ocrSendTimeout);
       expect(request?.receiveTimeout, ocrReceiveTimeout);
+      expect(
+        ocrConnectTimeout,
+        greaterThanOrEqualTo(const Duration(seconds: 60)),
+      );
+      expect(ocrSendTimeout, greaterThanOrEqualTo(const Duration(minutes: 2)));
       expect(ocrReceiveTimeout, greaterThan(const Duration(seconds: 600)));
       final formData = request?.data as FormData;
       expect(formData.files.single.key, 'image');

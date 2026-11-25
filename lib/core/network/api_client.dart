@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -43,8 +45,9 @@ final apiClientProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
       baseUrl: AppConfig.apiBaseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 20),
+      connectTimeout: const Duration(seconds: 90),
+      sendTimeout: const Duration(seconds: 120),
+      receiveTimeout: const Duration(seconds: 120),
       headers: const {'Accept': 'application/json'},
     ),
   );
@@ -59,9 +62,24 @@ final apiClientProvider = Provider<Dio>((ref) {
         handler.next(options);
       },
       onError: (error, handler) {
-        handler.next(error.copyWith(error: ApiException.fromDio(error)));
+        final apiException = ApiException.fromDio(error);
+        _logApiFailure(error, apiException.failureKind);
+        handler.next(error.copyWith(error: apiException));
       },
     ),
   );
   return dio;
 });
+
+void _logApiFailure(DioException error, ApiFailureKind failureKind) {
+  final parsedPath = Uri.tryParse(error.requestOptions.path)?.path;
+  final path = parsedPath == null || parsedPath.isEmpty ? '/' : parsedPath;
+  final statusCode = error.response?.statusCode;
+  final status = statusCode == null ? '' : ' (HTTP $statusCode)';
+  developer.log(
+    'API ${failureKind.name} failure: '
+    '${error.requestOptions.method.toUpperCase()} $path$status',
+    name: 'halallens.api',
+    level: 900,
+  );
+}

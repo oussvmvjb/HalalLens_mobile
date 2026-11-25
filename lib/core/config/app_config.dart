@@ -1,8 +1,15 @@
 class AppConfig {
   const AppConfig._();
 
-  static const apiBaseUrl = String.fromEnvironment(
+  static const _productionApiBaseUrl =
+      'https://halallens-backend.onrender.com/api/v1';
+
+  static const _configuredApiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:8000/api/v1',
+    defaultValue: _productionApiBaseUrl,
   );
+  static const apiBaseUrl =
+      bool.fromEnvironment('dart.vm.product')
+          ? _productionApiBaseUrl
+          : _configuredApiBaseUrl;
 }

@@ -21,7 +21,7 @@ class HomePage extends ConsumerWidget {
         return ListView(
           padding: EdgeInsets.fromLTRB(
             horizontalPadding,
-            20,
+            8,
             horizontalPadding,
             32,
           ),

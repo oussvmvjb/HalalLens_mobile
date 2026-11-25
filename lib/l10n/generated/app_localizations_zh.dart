@@ -95,6 +95,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get password => '密码';
 
   @override
+  String get confirmPassword => '确认密码';
+
+  @override
+  String get forgotPassword => '忘记密码？';
+
+  @override
+  String get passwordRecoveryUnavailable => '密码找回功能暂不可用，请联系支持团队。';
+
+  @override
   String get passwordHelper => '请使用至少 12 个字符。';
 
   @override
@@ -122,10 +131,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get enterPassword => '请输入密码';
 
   @override
+  String get passwordsDoNotMatch => '两次输入的密码不一致。';
+
+  @override
   String get passwordTooShort => '密码至少需要 12 个字符';
 
   @override
-  String get networkError => '无法连接到 API。请检查网络和 API 地址。使用 Flutter Web 时，请确认 FastAPI 的 CORS 配置允许此页面来源。';
+  String get networkError => '无法连接到 API。请检查网络连接后重试。';
 
   @override
   String get requestTimeout => '服务器响应超时。请检查后端并重试。';
@@ -565,6 +577,15 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get password => '密码';
 
   @override
+  String get confirmPassword => '确认密码';
+
+  @override
+  String get forgotPassword => '忘记密码？';
+
+  @override
+  String get passwordRecoveryUnavailable => '密码找回功能暂不可用，请联系支持团队。';
+
+  @override
   String get passwordHelper => '请使用至少 12 个字符。';
 
   @override
@@ -592,10 +613,13 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get enterPassword => '请输入密码';
 
   @override
+  String get passwordsDoNotMatch => '两次输入的密码不一致。';
+
+  @override
   String get passwordTooShort => '密码至少需要 12 个字符';
 
   @override
-  String get networkError => '无法连接到 API。请检查网络和 API 地址。使用 Flutter Web 时，请确认 FastAPI 的 CORS 配置允许此页面来源。';
+  String get networkError => '无法连接到 API。请检查网络连接后重试。';
 
   @override
   String get requestTimeout => '服务器响应超时。请检查后端并重试。';

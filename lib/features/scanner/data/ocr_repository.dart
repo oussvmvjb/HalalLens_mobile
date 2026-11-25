@@ -12,7 +12,7 @@ final ocrRepositoryProvider = Provider<OcrRepository>((ref) {
 });
 
 const defaultOcrLanguages = ['en', 'fr', 'ar'];
-const ocrConnectTimeout = Duration(seconds: 15);
+const ocrConnectTimeout = Duration(seconds: 90);
 const ocrSendTimeout = Duration(minutes: 2);
 const ocrReceiveTimeout = Duration(seconds: 660);
 
@@ -44,11 +44,9 @@ class ApiOcrRepository implements OcrRepository {
     }
     onStageChanged?.call(OcrRequestStage.preparingOcr);
 
-    final requestUrl =
-        '${_dio.options.baseUrl.replaceFirst(RegExp(r'/+$'), '')}/scan/extract-text';
     if (kDebugMode) {
       debugPrint(
-        '[OCR] POST $requestUrl (multipart field: image, '
+        '[OCR] POST /scan/extract-text (multipart field: image, '
         '${imageBytes.length} bytes; languages: $languages)',
       );
     }
@@ -77,11 +75,7 @@ class ApiOcrRepository implements OcrRepository {
         ),
       );
       if (kDebugMode) {
-        debugPrint(
-          '[OCR] HTTP ${response.statusCode} from '
-          '${response.requestOptions.uri}',
-        );
-        debugPrint('[OCR] Response body: ${response.data}');
+        debugPrint('[OCR] HTTP ${response.statusCode} from /scan/extract-text');
       }
       final data = response.data;
       if (data == null) {
@@ -89,14 +83,6 @@ class ApiOcrRepository implements OcrRepository {
       }
       return OcrTextResult.fromJson(data);
     } on DioException catch (error) {
-      if (kDebugMode) {
-        debugPrint(
-          '[OCR] Request failed: ${error.type} ${error.message}; '
-          'URL: ${error.requestOptions.uri}; '
-          'status: ${error.response?.statusCode}; '
-          'body: ${error.response?.data}',
-        );
-      }
       throw ApiException.fromDio(error);
     }
   }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/authentication/application/auth_controller.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../shared/widgets/organic_green_background.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({required this.child, required this.location, super.key});
@@ -16,55 +17,96 @@ class AppShell extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final user = ref.watch(authControllerProvider).valueOrNull;
     final destination = user == null ? '/authentication' : '/profile';
+    final isHome = location == '/';
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: const SizedBox.shrink(),
-        leadingWidth: 0,
-        titleSpacing: 16,
-        title: Directionality(
-          textDirection: TextDirection.ltr,
-          child: Row(
-            children: [
-              const Icon(Icons.eco_outlined, size: 25),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  l10n.appName,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: const Color(0xFF183B2D),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              IconButton(
-                tooltip: user == null ? l10n.login : l10n.profile,
-                onPressed: () => context.go(destination),
-                icon:
-                    user == null
-                        ? const Icon(Icons.account_circle_outlined)
-                        : CircleAvatar(
-                          radius: 15,
-                          backgroundColor: const Color(0xFFD9F2E5),
-                          child: Text(
-                            user.fullName.trim().isEmpty
-                                ? '?'
-                                : user.fullName.trim().substring(0, 1),
-                            style: const TextStyle(
-                              color: Color(0xFF16845B),
-                              fontWeight: FontWeight.w700,
-                            ),
+      body: OrganicGreenBackground(
+        variant: _variantForLocation(location),
+        child: SafeArea(
+          bottom: false,
+          child: NestedScrollView(
+            key: ValueKey(location),
+            headerSliverBuilder:
+                (context, innerBoxIsScrolled) => [
+                  SliverAppBar(
+                    backgroundColor: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                    elevation: 0,
+                    scrolledUnderElevation: 0,
+                    pinned: false,
+                    floating: false,
+                    automaticallyImplyLeading: false,
+                    leading: const SizedBox.shrink(),
+                    leadingWidth: 0,
+                    toolbarHeight: 48,
+                    titleSpacing: 16,
+                    title: Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Row(
+                        children: [
+                          if (isHome)
+                            Expanded(
+                              child: Text(
+                                l10n.appName,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleLarge?.copyWith(
+                                  color: const Color(0xFF183B2D),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            )
+                          else
+                            const Spacer(),
+                          IconButton(
+                            tooltip: user == null ? l10n.login : l10n.profile,
+                            onPressed: () => context.go(destination),
+                            icon:
+                                user == null
+                                    ? const Icon(Icons.account_circle_outlined)
+                                    : CircleAvatar(
+                                      radius: 15,
+                                      backgroundColor: const Color(0xFFD9F2E5),
+                                      child: Text(
+                                        user.fullName.trim().isEmpty
+                                            ? '?'
+                                            : user.fullName
+                                                .trim()
+                                                .substring(0, 1),
+                                        style: const TextStyle(
+                                          color: Color(0xFF16845B),
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
                           ),
-                        ),
-              ),
-            ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+            body: child,
           ),
         ),
       ),
-      body: child,
       bottomNavigationBar: _AppBottomNavigationBar(location: location),
     );
+  }
+
+  OrganicBackgroundVariant _variantForLocation(String location) {
+    if (location.startsWith('/scanner')) {
+      return OrganicBackgroundVariant.scanner;
+    }
+    if (location.startsWith('/analysis')) {
+      return OrganicBackgroundVariant.analysis;
+    }
+    if (location.startsWith('/history')) {
+      return OrganicBackgroundVariant.history;
+    }
+    if (location.startsWith('/settings') || location.startsWith('/profile')) {
+      return OrganicBackgroundVariant.settings;
+    }
+    return OrganicBackgroundVariant.home;
   }
 }
 

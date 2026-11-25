@@ -170,6 +170,19 @@ void main() {
         find.byKey(const Key('auth-password')),
         'a-secure-password-123',
       );
+      await tester.enterText(
+        find.byKey(const Key('auth-confirm-password')),
+        'different-password-123',
+      );
+      await tester.ensureVisible(find.byKey(const Key('auth-submit')));
+      await tester.tap(find.byKey(const Key('auth-submit')));
+      await tester.pumpAndSettle();
+      expect(find.text('Passwords do not match.'), findsOneWidget);
+
+      await tester.enterText(
+        find.byKey(const Key('auth-confirm-password')),
+        'a-secure-password-123',
+      );
       await tester.ensureVisible(find.byKey(const Key('auth-submit')));
       await tester.tap(find.byKey(const Key('auth-submit')));
       await tester.pumpAndSettle();

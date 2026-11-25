@@ -268,6 +268,24 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get password;
 
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPassword;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @passwordRecoveryUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Password recovery is not available yet. Please contact support.'**
+  String get passwordRecoveryUnavailable;
+
   /// No description provided for @passwordHelper.
   ///
   /// In en, this message translates to:
@@ -322,6 +340,12 @@ abstract class AppLocalizations {
   /// **'Enter your password'**
   String get enterPassword;
 
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordsDoNotMatch;
+
   /// No description provided for @passwordTooShort.
   ///
   /// In en, this message translates to:
@@ -331,7 +355,7 @@ abstract class AppLocalizations {
   /// No description provided for @networkError.
   ///
   /// In en, this message translates to:
-  /// **'Could not reach the API. Check the connection and API URL. For Flutter Web, make sure FastAPI allows this page\'s origin in CORS.'**
+  /// **'Could not reach the API. Check your internet connection and try again.'**
   String get networkError;
 
   /// No description provided for @requestTimeout.

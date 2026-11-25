@@ -14,6 +14,7 @@ class HalalLensApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final locale = ref.watch(localeProvider).valueOrNull ?? const Locale('en');
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: 'HalalLens',
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
