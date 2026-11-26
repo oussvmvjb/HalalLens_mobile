@@ -23,7 +23,6 @@ class AppShell extends ConsumerWidget {
       body: OrganicGreenBackground(
         variant: _variantForLocation(location),
         child: SafeArea(
-          bottom: false,
           child: NestedScrollView(
             key: ValueKey(location),
             headerSliverBuilder:

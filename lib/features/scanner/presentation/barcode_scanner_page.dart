@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -39,6 +40,7 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
     ],
   );
 
+  final TextEditingController _barcodeController = TextEditingController();
   BarcodeLookupResult? _result;
   String? _lastSubmittedBarcode;
   String? _errorMessage;
@@ -144,7 +146,15 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
     if (barcode != null) await _lookup(barcode);
   }
 
+  Future<void> _submitManualBarcode() async {
+    final value = _barcodeController.text.trim();
+    if (value.isEmpty || _isLoading) return;
+    FocusScope.of(context).unfocus();
+    await _lookup(value);
+  }
+
   Future<void> _scanAnother() async {
+    _barcodeController.clear();
     setState(() {
       _result = null;
       _lastSubmittedBarcode = null;
@@ -242,6 +252,7 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
 
   @override
   void dispose() {
+    _barcodeController.dispose();
     unawaited(_controller.dispose());
     super.dispose();
   }
@@ -279,7 +290,7 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    if (_result == null && _errorMessage == null)
+                    if (_result == null && _errorMessage == null) ...[
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: SizedBox(
@@ -311,6 +322,9 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      _manualBarcodeCard(l10n),
+                    ],
                     if (_isLoading)
                       _StatusCard(
                         child: Column(
@@ -331,6 +345,40 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
           ],
         );
       },
+    );
+  }
+
+  Widget _manualBarcodeCard(AppLocalizations l10n) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                key: const Key('manual-barcode-input'),
+                controller: _barcodeController,
+                enabled: !_isLoading,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.search,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onSubmitted: (_) => _submitManualBarcode(),
+                decoration: InputDecoration(
+                  hintText: l10n.barcodeLabel,
+                  prefixIcon: const Icon(Icons.qr_code_2_rounded),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            FilledButton.icon(
+              key: const Key('manual-barcode-submit'),
+              onPressed: _isLoading ? null : _submitManualBarcode,
+              icon: const Icon(Icons.search_rounded),
+              label: Text(l10n.scanBarcode),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -480,7 +528,8 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      '${copy.analysis}: ${language.analysisStatus(result.analysis.status)}',
+                      '${copy.analysis}: ${language.analysisStatus(result.analysis.status)}'
+                      '${result.analysis.verdict != null ? ' (${result.analysis.verdict})' : ''}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -490,6 +539,58 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
                       translated?.analysisExplanation ??
                           result.analysis.explanation,
                     ),
+                    if (result.analysis.analyzedAt != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        'Last analyzed: ${result.analysis.analyzedAt!.toLocal()}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.secondaryText,
+                        ),
+                      ),
+                    ],
+                    if (result.analysis.warnings.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      for (final warning in result.analysis.warnings)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            '• $warning',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppTheme.secondaryText,
+                            ),
+                          ),
+                        ),
+                    ],
+                    if (result.analysis.ingredientsAnalysis.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      for (final item in result.analysis.ingredientsAnalysis)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${item.originalText} — ${item.status.toUpperCase()}',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (item.reason.isNotEmpty)
+                                Text(
+                                  item.reason,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              if (item.sources.isNotEmpty)
+                                Text(
+                                  'Evidence: ${item.sources.join(', ')}',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppTheme.secondaryText,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ],
                 ),
               ),

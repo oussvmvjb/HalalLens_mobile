@@ -120,6 +120,8 @@ class ScanAnalysisSnapshot {
     required this.warnings,
     required this.ingredientsAnalysis,
     required this.certifications,
+    this.verdict,
+    this.analyzedAt,
   });
 
   final String overallStatus;
@@ -129,6 +131,8 @@ class ScanAnalysisSnapshot {
   final List<String> warnings;
   final List<Map<String, dynamic>> ingredientsAnalysis;
   final List<Map<String, dynamic>> certifications;
+  final String? verdict;
+  final DateTime? analyzedAt;
 
   factory ScanAnalysisSnapshot.fromJson(Map<String, dynamic> json) =>
       ScanAnalysisSnapshot(
@@ -151,6 +155,10 @@ class ScanAnalysisSnapshot {
                 .map((value) => Map<String, dynamic>.from(value))
                 .toList(growable: false)
             : const [],
+        verdict: json['verdict'] as String?,
+        analyzedAt: json['analyzed_at'] is String
+            ? DateTime.tryParse(json['analyzed_at'] as String)
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -161,6 +169,8 @@ class ScanAnalysisSnapshot {
         'warnings': warnings,
         'ingredients_analysis': ingredientsAnalysis,
         'certifications': certifications,
+        if (verdict != null) 'verdict': verdict,
+        if (analyzedAt != null) 'analyzed_at': analyzedAt!.toIso8601String(),
       };
 }
 

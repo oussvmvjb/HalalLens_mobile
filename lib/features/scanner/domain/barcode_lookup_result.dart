@@ -93,14 +93,25 @@ class BarcodeAnalysis {
     required this.status,
     required this.confidence,
     required this.explanation,
+    this.verdict,
+    this.analysisVersion,
+    this.analyzedAt,
+    this.warnings = const [],
+    this.ingredientsAnalysis = const [],
   });
 
   final String scanId;
   final String status;
   final double? confidence;
   final String explanation;
+  final String? verdict;
+  final String? analysisVersion;
+  final DateTime? analyzedAt;
+  final List<String> warnings;
+  final List<IngredientAnalysisItem> ingredientsAnalysis;
 
   factory BarcodeAnalysis.fromJson(Map<String, dynamic> json) {
+    final rawItems = json['ingredients_analysis'];
     return BarcodeAnalysis(
       scanId: _requiredString(json, 'scan_id'),
       status: _requiredString(json, 'overall_status'),
@@ -109,6 +120,66 @@ class BarcodeAnalysis {
               ? (json['confidence_score'] as num).toDouble()
               : null,
       explanation: _requiredString(json, 'explanation'),
+      verdict: _optionalString(json['verdict']),
+      analysisVersion: _optionalString(json['analysis_version']),
+      analyzedAt:
+          json['analyzed_at'] is String
+              ? DateTime.tryParse(json['analyzed_at'] as String)
+              : null,
+      warnings: _stringList(json['warnings']),
+      ingredientsAnalysis:
+          rawItems is List
+              ? rawItems
+                  .whereType<Map>()
+                  .map(
+                    (item) => IngredientAnalysisItem.fromJson(
+                      Map<String, dynamic>.from(item),
+                    ),
+                  )
+                  .toList(growable: false)
+              : const [],
+    );
+  }
+}
+
+class IngredientAnalysisItem {
+  const IngredientAnalysisItem({
+    required this.originalText,
+    required this.normalizedName,
+    required this.status,
+    required this.reason,
+    this.eNumber,
+    this.insNumber,
+    this.sources = const [],
+  });
+
+  final String originalText;
+  final String normalizedName;
+  final String status;
+  final String reason;
+  final String? eNumber;
+  final String? insNumber;
+  final List<String> sources;
+
+  factory IngredientAnalysisItem.fromJson(Map<String, dynamic> json) {
+    final rawEvidence = json['evidence'];
+    final sourceNames = <String>[];
+    if (rawEvidence is List) {
+      for (final entry in rawEvidence.whereType<Map>()) {
+        final name = entry['source_name'];
+        if (name is String && name.isNotEmpty) {
+          sourceNames.add(name);
+        }
+      }
+    }
+    return IngredientAnalysisItem(
+      originalText: _optionalString(json['original_text']) ?? '',
+      normalizedName: _optionalString(json['normalized_name']) ?? '',
+      status: _optionalString(json['status']) ?? 'unknown',
+      reason: _optionalString(json['reason']) ?? '',
+      eNumber: _optionalString(json['e_number']),
+      insNumber: _optionalString(json['ins_number']),
+      sources: sourceNames,
     );
   }
 }

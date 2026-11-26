@@ -285,12 +285,27 @@ class _ScanDetailsSheet extends StatelessWidget {
         if (details.barcode != null) Text('Barcode: ${details.barcode}'),
         const SizedBox(height: 16),
         Text(
-          analysis.overallStatus,
+          analysis.verdict ?? analysis.overallStatus,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         if (analysis.confidenceScore != null)
           Text('Confidence: ${analysis.confidenceScore}'),
+        if (analysis.analyzedAt != null)
+          Text('Last analyzed: ${analysis.analyzedAt!.toLocal()}'),
         Text(analysis.explanation),
+        if (analysis.ingredientsAnalysis.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text('Ingredient analysis', style: Theme.of(context).textTheme.titleMedium),
+          for (final item in analysis.ingredientsAnalysis)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                '${item['original_text'] ?? item['normalized_name'] ?? ''}: '
+                '${item['status'] ?? 'unknown'}'
+                '${item['reason'] != null ? ' — ${item['reason']}' : ''}',
+              ),
+            ),
+        ],
         if (product.ingredientsText != null) ...[
           const SizedBox(height: 16),
           Text('Ingredients', style: Theme.of(context).textTheme.titleMedium),

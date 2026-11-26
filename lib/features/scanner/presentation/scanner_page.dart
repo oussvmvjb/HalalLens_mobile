@@ -369,6 +369,10 @@ class _ScannerPageState extends ConsumerState<ScannerPage> {
                     ],
                     if (_result case final result?) ...[
                       const SizedBox(height: 20),
+                      if (result.halalAssessment != null) ...[
+                        _HalalAssessmentCard(assessment: result.halalAssessment!),
+                        const SizedBox(height: 16),
+                      ],
                       _OcrResultCard(
                         result: result,
                         title: l10n.scanResults,
@@ -895,6 +899,215 @@ class _ScanStatusBanner extends StatelessWidget {
             Expanded(child: Text(message)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Halal Assessment Card  (Step 8 – color-coded ingredient results)
+// ---------------------------------------------------------------------------
+
+class _HalalAssessmentCard extends StatelessWidget {
+  const _HalalAssessmentCard({required this.assessment});
+
+  final HalalAssessment assessment;
+
+  Color _statusColor(HalalIngredientStatus status) {
+    return switch (status) {
+      HalalIngredientStatus.halal => const Color(0xFF2E7D32),
+      HalalIngredientStatus.haram => const Color(0xFFC62828),
+      HalalIngredientStatus.doubtful => const Color(0xFFE65100),
+      HalalIngredientStatus.conditional => const Color(0xFFE65100),
+      HalalIngredientStatus.unknown => const Color(0xFF546E7A),
+      HalalIngredientStatus.insufficientInformation => const Color(0xFF546E7A),
+    };
+  }
+
+  Color _statusBackground(HalalIngredientStatus status) {
+    return switch (status) {
+      HalalIngredientStatus.halal => const Color(0xFFE8F5E9),
+      HalalIngredientStatus.haram => const Color(0xFFFFEBEE),
+      HalalIngredientStatus.doubtful => const Color(0xFFFFF3E0),
+      HalalIngredientStatus.conditional => const Color(0xFFFFF3E0),
+      HalalIngredientStatus.unknown => const Color(0xFFECEFF1),
+      HalalIngredientStatus.insufficientInformation => const Color(0xFFECEFF1),
+    };
+  }
+
+  IconData _statusIcon(HalalIngredientStatus status) {
+    return switch (status) {
+      HalalIngredientStatus.halal => Icons.check_circle_rounded,
+      HalalIngredientStatus.haram => Icons.cancel_rounded,
+      HalalIngredientStatus.doubtful => Icons.warning_amber_rounded,
+      HalalIngredientStatus.conditional => Icons.help_outline_rounded,
+      HalalIngredientStatus.unknown => Icons.device_unknown_rounded,
+      HalalIngredientStatus.insufficientInformation => Icons.device_unknown_rounded,
+    };
+  }
+
+  String _statusLabel(HalalIngredientStatus status) {
+    return switch (status) {
+      HalalIngredientStatus.halal => 'Halal',
+      HalalIngredientStatus.haram => 'Haram',
+      HalalIngredientStatus.doubtful => 'Doubtful',
+      HalalIngredientStatus.conditional => 'Conditional',
+      HalalIngredientStatus.unknown => 'Unknown',
+      HalalIngredientStatus.insufficientInformation => 'Insufficient Info',
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final verdictColor = _statusColor(assessment.overallStatus);
+    final verdictBg = _statusBackground(assessment.overallStatus);
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Overall verdict banner
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: verdictBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: verdictColor.withOpacity(0.4)),
+              ),
+              child: Row(
+                children: [
+                  Icon(_statusIcon(assessment.overallStatus), color: verdictColor, size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Halal Analysis — ${_statusLabel(assessment.overallStatus)}',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: verdictColor,
+                          ),
+                        ),
+                        if (assessment.confidenceScore != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            'Confidence: ${(assessment.confidenceScore! * 100).toStringAsFixed(0)}%',
+                            style: theme.textTheme.labelMedium?.copyWith(color: verdictColor),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Explanation
+            if (assessment.explanation.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                assessment.explanation,
+                style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
+              ),
+            ],
+            // Warnings
+            if (assessment.warnings.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              for (final warning in assessment.warnings)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.info_outline, size: 16, color: Color(0xFFE65100)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          warning,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: const Color(0xFFE65100),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+            // Per-ingredient color-coded chips
+            if (assessment.ingredientsAnalysis.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              Text(
+                'Ingredients',
+                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  for (final ing in assessment.ingredientsAnalysis)
+                    _IngredientChip(
+                      name: ing.originalName,
+                      status: ing.status,
+                      statusColor: _statusColor(ing.status),
+                      bgColor: _statusBackground(ing.status),
+                      icon: _statusIcon(ing.status),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IngredientChip extends StatelessWidget {
+  const _IngredientChip({
+    required this.name,
+    required this.status,
+    required this.statusColor,
+    required this.bgColor,
+    required this.icon,
+  });
+
+  final String name;
+  final HalalIngredientStatus status;
+  final Color statusColor;
+  final Color bgColor;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: statusColor.withOpacity(0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: statusColor),
+          const SizedBox(width: 5),
+          Flexible(
+            child: Text(
+              name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: statusColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }
